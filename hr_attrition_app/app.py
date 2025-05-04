@@ -2,12 +2,12 @@ import streamlit as st
 import pickle
 import numpy as np
 
-# Load model and scaler
-with open("svm_model.pkl", "rb") as f:
+with open("hr_attrition_app/svm_model.pkl", "rb") as f:
     model = pickle.load(f)
 
-with open("scaler.pkl", "rb") as f:
+with open("hr_attrition_app/scaler.pkl", "rb") as f:
     scaler = pickle.load(f)
+
 
 # Title
 st.title("Employee Attrition Prediction")
