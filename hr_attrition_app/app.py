@@ -15,11 +15,11 @@ with open(scaler_path, "rb") as f:
     scaler = pickle.load(f)
 
 # App title
-st.title("🧠 Employee Attrition Prediction")
+st.title(" Employee Attrition Prediction")
 st.markdown("Enter employee details in the sidebar to predict whether the employee is likely to **stay or leave**.")
 
 # Sidebar for user input
-st.sidebar.header("🔍 Enter Employee Details")
+st.sidebar.header(" Enter Employee Details")
 
 # Widgets for input features
 Age = st.sidebar.slider("Age", 18, 60, 30)
@@ -33,11 +33,11 @@ input_data = np.array([[Age, DistanceFromHome, MonthlyIncome, JobSatisfaction, Y
 input_scaled = scaler.transform(input_data)
 
 # Predict on button click
-if st.button("🎯 Predict Attrition"):
+if st.button(" Predict Attrition"):
     prediction = model.predict(input_scaled)
     probability = model.predict_proba(input_scaled)[0][1] * 100  # Likelihood of leaving
 
     if prediction[0] == 1:
-        st.error(f"⚠️ This employee is **likely to leave** the company.\n\nAttrition Probability: **{probability:.2f}%**")
+        st.error(f" This employee is **likely to leave** the company.\n\nAttrition Probability: **{probability:.2f}%**")
     else:
-        st.success(f"✅ This employee is **likely to stay** at the company.\n\nAttrition Probability: **{100 - probability:.2f}%**")
+        st.success(f" This employee is **likely to stay** at the company.\n\nAttrition Probability: **{100 - probability:.2f}%**")
