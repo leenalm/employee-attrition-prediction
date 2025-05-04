@@ -1,38 +1,33 @@
-import streamlit as st
+import pandas as pd
 import pickle
-import numpy as np
-import os
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
 
-# Get current directory
-current_dir = os.path.dirname(__file__)
+# Load dataset
+df = pd.read_csv("WA_Fn-UseC_-HR-Employee-Attrition.csv")
 
-# Load model and scaler using correct relative paths
-with open(os.path.join(current_dir, "svm_model.pkl"), "rb") as f:
-    model = pickle.load(f)
+# Select only the 5 features used in the Streamlit app
+features = ['Age', 'DistanceFromHome', 'MonthlyIncome', 'JobSatisfaction', 'YearsAtCompany']
+X = df[features]
+y = df['Attrition'].map({'Yes': 1, 'No': 0})  # Encode target
 
-with open(os.path.join(current_dir, "scaler.pkl"), "rb") as f:
-    scaler = pickle.load(f)
+# Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
 
-# Title
-st.title("Employee Attrition Prediction")
-st.subheader("Powered by Tuned SVM Model")
+# Scale
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
 
-# Sidebar inputs
-st.sidebar.header("Enter Employee Details")
+# Train model
+model = SVC(probability=True)
+model.fit(X_train_scaled, y_train)
 
-Age = st.sidebar.slider("Age", 18, 60, 30)
-DistanceFromHome = st.sidebar.slider("Distance From Home (km)", 1, 30, 10)
-MonthlyIncome = st.sidebar.number_input("Monthly Income", 1000, 20000, 5000)
-JobSatisfaction = st.sidebar.slider("Job Satisfaction (1=Low, 4=High)", 1, 4, 3)
-YearsAtCompany = st.sidebar.slider("Years at Company", 0, 40, 5)
+# Save model and scaler
+with open("svm_model.pkl", "wb") as f:
+    pickle.dump(model, f)
 
-input_data = np.array([[Age, DistanceFromHome, MonthlyIncome, JobSatisfaction, YearsAtCompany]])
-input_scaled = scaler.transform(input_data)
+with open("scaler.pkl", "wb") as f:
+    pickle.dump(scaler, f)
 
-if st.button("Predict Attrition"):
-    prediction = model.predict(input_scaled)
-    if prediction[0] == 1:
-        st.error("This employee is likely to leave the company.")
-    else:
-        st.success("This employee is likely to stay at the company.")
 
