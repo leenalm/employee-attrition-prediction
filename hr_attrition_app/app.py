@@ -1,33 +1,43 @@
-import pandas as pd
+import streamlit as st
 import pickle
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn.preprocessing import StandardScaler
+import numpy as np
+import os
 
-# Load dataset
-df = pd.read_csv("WA_Fn-UseC_-HR-Employee-Attrition.csv")
+# Load model and scaler
+current_dir = os.path.dirname(__file__)
+model_path = os.path.join(current_dir, "svm_model.pkl")
+scaler_path = os.path.join(current_dir, "scaler.pkl")
 
-# Select only the 5 features used in the Streamlit app
-features = ['Age', 'DistanceFromHome', 'MonthlyIncome', 'JobSatisfaction', 'YearsAtCompany']
-X = df[features]
-y = df['Attrition'].map({'Yes': 1, 'No': 0})  # Encode target
+with open(model_path, "rb") as f:
+    model = pickle.load(f)
 
-# Split
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
+with open(scaler_path, "rb") as f:
+    scaler = pickle.load(f)
 
-# Scale
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
+# App title
+st.title("🧠 Employee Attrition Prediction")
+st.markdown("Enter employee details in the sidebar to predict whether the employee is likely to **stay or leave**.")
 
-# Train model
-model = SVC(probability=True)
-model.fit(X_train_scaled, y_train)
+# Sidebar for user input
+st.sidebar.header("🔍 Enter Employee Details")
 
-# Save model and scaler
-with open("svm_model.pkl", "wb") as f:
-    pickle.dump(model, f)
+# Widgets for input features
+Age = st.sidebar.slider("Age", 18, 60, 30)
+DistanceFromHome = st.sidebar.slider("Distance From Home (km)", 1, 30, 10)
+MonthlyIncome = st.sidebar.number_input("Monthly Income (USD)", min_value=1000, max_value=20000, value=5000, step=500)
+JobSatisfaction = st.sidebar.slider("Job Satisfaction (1 = Low, 4 = High)", 1, 4, 3)
+YearsAtCompany = st.sidebar.slider("Years at Company", 0, 40, 5)
 
-with open("scaler.pkl", "wb") as f:
-    pickle.dump(scaler, f)
+# Format input for model
+input_data = np.array([[Age, DistanceFromHome, MonthlyIncome, JobSatisfaction, YearsAtCompany]])
+input_scaled = scaler.transform(input_data)
 
+# Predict on button click
+if st.button("🎯 Predict Attrition"):
+    prediction = model.predict(input_scaled)
+    probability = model.predict_proba(input_scaled)[0][1] * 100  # Likelihood of leaving
 
+    if prediction[0] == 1:
+        st.error(f"⚠️ This employee is **likely to leave** the company.\n\nAttrition Probability: **{probability:.2f}%**")
+    else:
+        st.success(f"✅ This employee is **likely to stay** at the company.\n\nAttrition Probability: **{100 - probability:.2f}%**")
