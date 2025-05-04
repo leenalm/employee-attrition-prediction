@@ -19,7 +19,7 @@ st.title(" Employee Attrition Prediction")
 st.markdown("Enter employee details to predict whether the employee is likely to **stay or leave**.")
 
 # Sidebar for user input
-st.sidebar.header("🔍 Enter Employee Details")
+st.sidebar.header(" Enter Employee Details")
 
 # Widgets for 10 input features
 Age = st.sidebar.slider("Age", 18, 60, 30)
