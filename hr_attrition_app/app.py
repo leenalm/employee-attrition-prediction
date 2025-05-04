@@ -1,12 +1,16 @@
 import streamlit as st
 import pickle
 import numpy as np
+import os
 
-# No folder prefix needed — they're in the same folder
-with open("svm_model.pkl", "rb") as f:
+# Get current directory
+current_dir = os.path.dirname(__file__)
+
+# Load model and scaler using correct relative paths
+with open(os.path.join(current_dir, "svm_model.pkl"), "rb") as f:
     model = pickle.load(f)
 
-with open("scaler.pkl", "rb") as f:
+with open(os.path.join(current_dir, "scaler.pkl"), "rb") as f:
     scaler = pickle.load(f)
 
 # Title
